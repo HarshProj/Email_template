@@ -11,10 +11,11 @@ const Editor = () => {
     footer: "Sample Footer",
     imageUrl: "",
   });
-  
+  const [isUploading, setIsUploading] = useState(false); // Tracks image upload status
+
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
   console.log(import.meta.env.VITE_BACKEND_URL);
-  
+
   // Fetch email layout from the backend
   useEffect(() => {
     const fetchLayout = async () => {
@@ -35,21 +36,23 @@ const Editor = () => {
   };
 
   // Upload an image and update its URL
-const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
-  const formData = new FormData();
-  formData.append("image", file);
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append("image", file);
 
-  try {
-    const response = await axios.post(`${BACKEND_URL}/api/uploadImage`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    setFields((prev) => ({ ...prev, imageUrl: response.data.imageUrl }));
-  } catch (error) {
-    console.error("Image upload failed:", error);
-  }
-};
-
+    setIsUploading(true); // Start the loader
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/uploadImage`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setFields((prev) => ({ ...prev, imageUrl: response.data.imageUrl }));
+    } catch (error) {
+      console.error("Image upload failed:", error);
+    } finally {
+      setIsUploading(false); // Stop the loader
+    }
+  };
 
   // Render and download the email template
   const handleDownload = async () => {
@@ -125,11 +128,13 @@ const handleImageUpload = async (e) => {
       <div className="mb-4">
         <label className="block font-medium">Upload Image</label>
         <input type="file" onChange={handleImageUpload} className="mb-4" />
-        {fields.imageUrl && (
+        {isUploading ? (
+          <p>Uploading image...</p>
+        ) : fields.imageUrl ? (
           <div className="mt-2">
             <img src={fields.imageUrl} alt="Uploaded" className="max-w-sm" />
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Download Button */}
