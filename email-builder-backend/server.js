@@ -1,18 +1,26 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const cors = require("cors");
 const bodyParser = require("body-parser");
 const emailRoutes = require("./routes/emailRoutes");
 const path=require('path')
 dotenv.config();
+const cors = require('cors');
+
+// Allow requests from your frontend
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(express.static(path.join(__dirname, 'public')));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use(cors()); // Enable CORS
+const corsOptions = {
+  origin: 'http://localhost:5173', // Replace with the frontend's hosted URL after deployment
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+};
+
+app.use(cors(corsOptions));
 app.use(express.json()); // JSON parser (No need for bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })); // To handle form-urlencoded data
 app.use(express.static("uploads")); // Serve uploaded images
