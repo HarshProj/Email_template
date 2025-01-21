@@ -55,15 +55,20 @@ router.post("/renderAndDownloadTemplate", async (req, res) => {
 
     // Create a function to render the template
     const renderedTemplate = `
-      <html>
-        <body>
-          <h1>${title}</h1>
-          <div>${content}</div>
-          <footer>${footer}</footer>
-          ${imageUrl ? `<img src="${imageUrl}" alt="Image" />` : ""}
-        </body>
-      </html>
-    `;
+    <html>
+      <body>
+        <h1>${title}</h1>
+        <div>${content}</div>
+        <footer>${footer}</footer>
+        ${
+          imageUrl
+            ? `<img src="${imageUrl}" alt="Image" style="max-width: 100%; height: auto; display: block;" />`
+            : ""
+        }
+      </body>
+    </html>
+  `;
+  
 
     res.status(200).send(renderedTemplate);
   } catch (error) {

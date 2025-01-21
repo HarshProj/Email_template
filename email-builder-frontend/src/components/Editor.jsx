@@ -11,12 +11,13 @@ const Editor = () => {
     footer: "Sample Footer",
     imageUrl: "",
   });
-
+  
+  const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   // Fetch email layout from the backend
   useEffect(() => {
     const fetchLayout = async () => {
       try {
-        const response = await axios.get("/api/getEmailLayout");
+        const response = await axios.get(`${BACKEND_URL}/api/getEmailLayout`);
         setTemplate(response.data); // Set the fetched template
       } catch (error) {
         console.error("Error fetching email layout:", error);
@@ -32,25 +33,26 @@ const Editor = () => {
   };
 
   // Upload an image and update its URL
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("image", file);
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  const formData = new FormData();
+  formData.append("image", file);
 
-    try {
-      const response = await axios.post("/api/uploadImage", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setFields((prev) => ({ ...prev, imageUrl: response.data.imageUrl }));
-    } catch (error) {
-      console.error("Image upload failed:", error);
-    }
-  };
+  try {
+    const response = await axios.post(`${BACKEND_URL}/api/uploadImage`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    setFields((prev) => ({ ...prev, imageUrl: response.data.imageUrl }));
+  } catch (error) {
+    console.error("Image upload failed:", error);
+  }
+};
+
 
   // Render and download the email template
   const handleDownload = async () => {
     try {
-      const response = await axios.post("/api/renderAndDownloadTemplate", fields, {
+      const response = await axios.post(`${BACKEND_URL}/api/renderAndDownloadTemplate`, fields, {
         responseType: "blob",
       });
 
@@ -66,10 +68,10 @@ const Editor = () => {
     }
   };
 
-  // Preview rendering with Quill and Tailwind Typography styles
+  // Only show the preview if template is fetched successfully
   const renderPreview = template ? (
     <div
-      className="prose prose-lg border p-4 rounded"
+      className="border p-4 rounded"
       dangerouslySetInnerHTML={{
         __html: template
           .replace("{{title}}", fields.title)
